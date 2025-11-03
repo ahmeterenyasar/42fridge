@@ -1,5 +1,6 @@
 import ExpiryAlert from "@/components/ExpiryAlert";
 import FridgeCard from "@/components/FridgeCard";
+import ProfileHeader from "@/components/ProfileHeader";
 import InventoryList from "@/components/InventoryList";
 import AddItemModal from "@/components/AddItemModal";
 import { getSupabaseServerClient } from "@/lib/supabaseServer";
@@ -18,6 +19,8 @@ export default async function Home() {
 
   return (
     <div className="mx-auto max-w-7xl p-4">
+      <ProfileHeader />
+
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
         <FridgeCard fridgeId={1} count={count1} />
         <FridgeCard fridgeId={2} count={count2} />
