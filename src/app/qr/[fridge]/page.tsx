@@ -15,12 +15,13 @@ export default async function QRPage({ params }: Props) {
 	const proto = (hdrs.get("x-forwarded-proto") || "http").split(",")[0];
 	const base = `${proto}://${host}`;
     const targetUrl = `${base}/?add=1&fridge=${fridgeId}`;
+	const title = fridgeId === 3 ? "Ortak dolap" : `Buzdolabı ${fridgeId}`;
     // Generate SVG on the server to avoid Canvas dependency
     const svg = await QRCode.toString(targetUrl, { type: "svg", margin: 2, width: 512 });
 
 	return (
 		<div className="mx-auto flex min-h-screen max-w-3xl flex-col items-center justify-center gap-6 p-6">
-            <h1 className="text-2xl font-semibold">Buzdolabı {fridgeId} - Ürün Ekle QR</h1>
+            <h1 className="text-2xl font-semibold">{title} - Ürün Ekle QR</h1>
             <div
                 className="h-auto w-72 sm:w-96 [&>svg]:h-auto [&>svg]:w-full"
                 aria-label={`Fridge ${fridgeId} QR`}

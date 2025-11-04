@@ -183,7 +183,7 @@ export default function AddItemModal() {
 						/>
 					</label>
 					<label className="flex flex-col gap-1 text-sm">
-						<span>Buzdolabı</span>
+						<span>Dolap</span>
 			<select
 							className="rounded-md border border-black/10 bg-white px-3 py-2 text-black outline-none dark:border-white/15 dark:bg-zinc-900 dark:text-white"
 							value={form.fridge_id}
