@@ -3,6 +3,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { getSupabaseClient } from "@/lib/supabaseClient";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import toast, { Toaster } from "react-hot-toast";
 
 export default function AddItemModal() {
 	const router = useRouter();
@@ -126,6 +127,9 @@ export default function AddItemModal() {
 		const iso = parseDDMMYYYYToISO(formatted);
 		if (iso) {
 			setForm((prev) => ({ ...prev, expiration_date: iso }));
+		} else if (formatted.length === 10) {
+			// Only show error when user has entered full date (8 digits)
+			toast.error("Geçersiz tarih! Lütfen gg/aa/yyyy formatında geçerli bir tarih girin.");
 		}
 	}
 
@@ -136,6 +140,19 @@ export default function AddItemModal() {
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
 		if (submitting) return;
+		
+		// Validate date before submitting
+		if (!form.expiration_date) {
+			toast.error("Lütfen geçerli bir son kullanma tarihi girin!");
+			return;
+		}
+		
+		// Validate shelf number
+		if (!form.location_shelf || form.location_shelf < 1) {
+			toast.error("Lütfen geçerli bir raf numarası girin (minimum 1)!");
+			return;
+		}
+		
 		setSubmitting(true);
 		const { error } = await supabase.from("fridge_items").insert([
 			{
@@ -149,6 +166,7 @@ export default function AddItemModal() {
 			},
 		]);
 		if (!error) {
+			toast.success("Ürün başarıyla eklendi!");
 			close();
 			// Inform lists to reload instantly (in addition to Realtime)
 			if (typeof window !== "undefined") {
@@ -157,6 +175,8 @@ export default function AddItemModal() {
 				);
 			}
 			router.refresh();
+		} else {
+			toast.error("Ürün eklenirken hata oluştu: " + error.message);
 		}
 		setSubmitting(false);
 	};
@@ -209,11 +229,22 @@ export default function AddItemModal() {
 					<label className="flex flex-col gap-1 text-sm">
 						<span>Raf Numarası</span>
 						<input
-							type="number"
-							min={1}
+							type="text"
+							inputMode="numeric"
+							placeholder="1"
 							className="rounded-md border border-black/10 bg-white px-3 py-2 text-black outline-none dark:border-white/15 dark:bg-zinc-900 dark:text-white"
-							value={form.location_shelf}
-							onChange={(e) => setForm({ ...form, location_shelf: Number(e.target.value) })}
+							value={form.location_shelf || ""}
+							onChange={(e) => {
+								const val = e.target.value.replace(/[^0-9]/g, "");
+								if (val === "") {
+									setForm({ ...form, location_shelf: 0 });
+								} else {
+									const num = parseInt(val, 10);
+									if (!isNaN(num)) {
+										setForm({ ...form, location_shelf: num });
+									}
+								}
+							}}
 						/>
 					</label>
 					<label className="flex flex-col gap-1 text-sm">
@@ -256,6 +287,7 @@ export default function AddItemModal() {
 					</div>
 				</form>
 			</div>
+			<Toaster position="top-center" reverseOrder={false} />
 		</div>
 	);
 }

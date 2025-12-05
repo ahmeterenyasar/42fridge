@@ -75,22 +75,58 @@ export default function ExpiryAlert() {
 
 	if (items.length === 0) return null;
 
+	const overdueItems = items.filter((it) => isOverdue(it.expiration_date));
+	const upcomingItems = items.filter((it) => !isOverdue(it.expiration_date));
+
 	return (
-		<div className="mb-6 rounded-xl border border-yellow-500/30 bg-yellow-50 p-4 text-yellow-900 shadow-sm dark:border-yellow-400/30 dark:bg-yellow-950/20 dark:text-yellow-100">
-			<div className="mb-2 font-semibold">Son kullanma tarihi yaklaşan/ geçmiş ürünler</div>
-			<ul className="list-inside list-disc text-sm">
-				{items.map((it) => {
-					const overdue = isOverdue(it.expiration_date);
-					return (
-						<li
-							key={it.id}
-							className={overdue ? "text-red-700 dark:text-red-300" : undefined}
-						>
-							<span className="font-medium">{it.name}</span> – SKT {formatDateTR(it.expiration_date)} (Dolap {it.fridge_id})
-						</li>
-					);
-				})}
-			</ul>
+		<div className="mb-6 space-y-4">
+			{/* Geçmiş ürünler - Kırmızı ve daha belirgin */}
+			{overdueItems.length > 0 && (
+				<div className="rounded-xl border-2 border-red-500 bg-red-50 p-4 shadow-md dark:border-red-500 dark:bg-red-950/30">
+					<div className="mb-3 flex items-center gap-2">
+						<span className="text-2xl">⚠️</span>
+						<div>
+							<div className="font-bold text-red-900 dark:text-red-100">
+								Son Kullanma Tarihi GEÇMİŞ Ürünler ({overdueItems.length})
+							</div>
+							<div className="text-xs text-red-700 dark:text-red-200">
+								Bu ürünleri hemen buzdolabından çıkarın ve uygulamadan silin!
+							</div>
+						</div>
+					</div>
+					<ul className="space-y-2 text-sm">
+						{overdueItems.map((it) => (
+							<li
+								key={it.id}
+								className="rounded-md border border-red-300 bg-red-100 p-2 font-medium text-red-900 dark:border-red-700 dark:bg-red-900/40 dark:text-red-100"
+							>
+								<span className="font-bold">{it.name}</span> – SKT {formatDateTR(it.expiration_date)} (Dolap {it.fridge_id})
+							</li>
+						))}
+					</ul>
+				</div>
+			)}
+
+			{/* Yaklaşan ürünler - Sarı/turuncu */}
+			{upcomingItems.length > 0 && (
+				<div className="rounded-xl border border-yellow-500/30 bg-yellow-50 p-4 shadow-sm dark:border-yellow-400/30 dark:bg-yellow-950/20">
+					<div className="mb-3 flex items-center gap-2">
+						<span className="text-xl">⏰</span>
+						<div>
+							<div className="font-semibold text-yellow-900 dark:text-yellow-100">
+								Son Kullanma Tarihi Yaklaşan Ürünler ({upcomingItems.length})
+							</div>
+						</div>
+					</div>
+					<ul className="list-inside list-disc space-y-1 text-sm text-yellow-900 dark:text-yellow-100">
+						{upcomingItems.map((it) => (
+							<li key={it.id}>
+								<span className="font-medium">{it.name}</span> – SKT {formatDateTR(it.expiration_date)} (Dolap {it.fridge_id})
+							</li>
+						))}
+					</ul>
+				</div>
+			)}
 		</div>
 	);
 }
